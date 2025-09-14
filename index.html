@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techkkim - Enhanced Digital Heritage Platform for Sikkim's Monasteries</title>
+    <meta name="description" content="Explore Sikkim's monasteries digitally with virtual tours, AR experiences, live streaming, and AI-powered guides. Preserving cultural heritage with cutting-edge technology.">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#800000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Enhanced styles for Techkkim */
+        .hero-background {
+            position: relative;
+            overflow: hidden;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            animation: subtleZoom 20s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+        @keyframes subtleZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+        
+        /* Flying birds animation */
+        .bird-svg {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            fill: #fff8dc;
+            filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        @keyframes wingFlap {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+        .wing {
+            transform-origin: center;
+            animation: wingFlap 0.6s ease-in-out infinite;
+        }
+        @keyframes flyRight1 {
+            0% { transform: translateX(-60px) translateY(10px) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateX(110vw) translateY(50px) scale(1); opacity: 0; }
+        }
+        @keyframes flyRight2 {
+            0% { transform: translateX(-80px) translateY(100px) scale(0.7); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateX(110vw) translateY(150px) scale(1); opacity: 0; }
+        }
+        @keyframes flyRight3 {
+            0% { transform: translateX(-100px) translateY(200px) scale(0.9); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateX(110vw) translateY(250px) scale(1); opacity: 0; }
+        }
+        
+        /* Enhanced button styles */
+        .btn-gradient {
+            background: linear-gradient(45deg, #800000, #FFC107);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(128, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            border: none;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .btn-gradient:hover, .btn-gradient:focus {
+            background: linear-gradient(45deg, #FFC107, #800000);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.7);
+            transform: scale(1.05);
+            outline: none;
+        }
+        
+        /* AI Chatbot Styles */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #800000, #FFC107);
+            border-radius: 50px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(128, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .chatbot-widget:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(128, 0, 0, 0.4);
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(128, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(128, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(128, 0, 0, 0); }
+        }
+        
+        .chat-interface {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+        }
+        .chat-header {
+            background: linear-gradient(45deg, #800000, #FFC107);
+            color: white;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            font-weight: bold;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        .chat-send {
+            background: #800000;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        /* Voice Search Enhancement */
+        .search-container {
+            display: flex;
+            max-width: 400px;
+            margin: 2rem auto 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            font-size: 1rem;
+            font-family: inherit;
+            outline-offset: 2px;
+        }
+        .voice-button {
+            background: #FFC107;
+            color: #800000;
+            border: none;
+            padding: 0 15px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .voice-button:hover, .voice-button.active {
+            background: #ff9800;
+            animation: voicePulse 1s ease-in-out infinite;
+        }
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .search-button {
+            background: #800000;
+            color: white;
+            border: none;
+            padding: 0 1.25rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.3s ease;
+        }
+        
+        /* AR Mode Button */
+        .ar-mode-btn {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        /* Live Stream Cards */
+        .live-stream-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .live-stream-card.live {
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+        .live-indicator {
+            background: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Feature boxes */
+        .feature-box {
+            background: linear-gradient(135deg, rgba(128,0,0,0.1), rgba(255,193,7,0.1));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 24px rgba(128,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid #fff8e1;
+        }
+        .feature-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(128,0,0,0.25);
+        }
+        
+        /* Accessibility Controls */
+        .accessibility-controls {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .accessibility-btn {
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .text-size-up { background: #4CAF50; color: white; }
+        .text-size-down { background: #FF9800; color: white; }
+        .high-contrast { background: #333; color: white; }
+        
+        /* Enhanced tables */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 900px;
+            margin: 1rem auto;
+            font-family: 'Georgia', serif;
+            box-shadow: 0 4px 15px rgba(128, 0, 0, 0.2);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #800000;
+            color: #FFC107;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        tr:nth-child(even) { background: #fff8e1; }
+        tr:hover { background: #ffe082; }
+        
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 1rem;
+        }
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1rem;
+        }
+        
+        .section-bg { background-color: rgba(128, 0, 0, 0.07); }
+        .goddess-img {
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 1rem;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .chatbot-widget {
+                bottom: 80px;
+                right: 15px;
+            }
+            .chat-interface {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+                bottom: 70px;
+            }
+            .ar-mode-btn {
+                bottom: 120px;
+                right: 15px;
+                top: auto;
+                transform: none;
+            }
+            .accessibility-controls {
+                left: 10px;
+                top: 80px;
+            }
+        }
+        
+        /* Mobile menu styles */
+        nav ul.mobile-menu {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            background: white;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 0 0 0.5rem 0.5rem;
+            z-index: 100;
+        }
+        nav ul.mobile-menu.show { display: flex; }
+        nav ul.mobile-menu li a { color: #800000; font-weight: 600; text-decoration: none; }
+        nav ul.mobile-menu li a:hover { color: #FFC107; }
+        
+        html { scroll-behavior: smooth; }
+        
+        /* PWA Install Button */
+        .install-app-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #673AB7, #9C27B0);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(103, 58, 183, 0.3);
+            transition: all 0.3s ease;
+        }
+        .install-app-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white shadow-md z-50 opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4 relative">
+                <div class="text-2xl font-bold text-[#800000] select-none">Techkkim</div>
+                <ul class="hidden md:flex space-x-6">
+                    <li><a href="#home" class="text-gray-700 hover:text-[#800000] transition">Home</a></li>
+                    <li><a href="#about" class="text-gray-700 hover:text-[#800000] transition">About</a></li>
+                    <li><a href="#features" class="text-gray-700 hover:text-[#800000] transition">Key Features</a></li>
+                    <li><a href="#live-hub" class="text-gray-700 hover:text-[#800000] transition">Live Experiences</a></li>
+                    <li><a href="#tours" class="text-gray-700 hover:text-[#800000] transition">Virtual Tours</a></li>
+                    <li><a href="#map" class="text-gray-700 hover:text-[#800000] transition">Interactive Map</a></li>
+                    <li><a href="#archives" class="text-gray-700 hover:text-[#800000] transition">Digital Archives</a></li>
+                    <li><a href="#community" class="text-gray-700 hover:text-[#800000] transition">Community</a></li>
+                    <li><a href="#contact" class="text-gray-700 hover:text-[#800000] transition">Contact</a></li>
+                </ul>
+                <div class="md:hidden">
+                    <button id="menu-toggle" class="text-gray-700 hover:text-[#800000] focus:outline-none" aria-label="Toggle menu">Menu</button>
+                </div>
+                <ul id="mobile-menu" class="mobile-menu absolute top-full right-0">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Key Features</a></li>
+                    <li><a href="#live-hub">Live Experiences</a></li>
+                    <li><a href="#tours">Virtual Tours</a></li>
+                    <li><a href="#map">Interactive Map</a></li>
+                    <li><a href="#archives">Digital Archives</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-background relative h-screen flex items-center justify-center px-4 text-center">
+        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2a4f375f-04f9-4560-a36d-b544a9f1d6e4.png" alt="Stunning panoramic view of Pemayangtse Monastery in Sikkim, nestled amid lush green hills and snow-capped peaks under a serene blue sky with traditional prayer flags fluttering in the gentle breeze" class="background-image" loading="lazy" />
+        <!-- Animated SVG Birds -->
+        <svg class="bird-svg" style="top: 20%; animation: flyRight1 20s linear infinite;" viewBox="0 0 64 64" aria-hidden="true">
+            <g><path d="M32 12c-4 0-8 4-8 8s4 8 8 8 8-4 8-8-4-8-8-8z" fill="#fff8dc" /><path class="wing" d="M24 20c2-4 8-4 10 0" stroke="#fff8dc" stroke-width="3" fill="none" /></g>
+        </svg>
+        <svg class="bird-svg" style="top: 40%; animation: flyRight2 25s linear infinite 5s;" viewBox="0 0 64 64" aria-hidden="true">
+            <g><path d="M32 12c-4 0-8 4-8 8s4 8 8 8 8-4 8-8-4-8-8-8z" fill="#fff8dc" /><path class="wing" d="M24 20c2-4 8-4 10 0" stroke="#fff8dc" stroke-width="3" fill="none" /></g>
+        </svg>
+        <svg class="bird-svg" style="top: 60%; animation: flyRight3 22s linear infinite 10s;" viewBox="0 0 64 64" aria-hidden="true">
+            <g><path d="M32 12c-4 0-8 4-8 8s4 8 8 8 8-4 8-8-4-8-8-8z" fill="#fff8dc" /><path class="wing" d="M24 20c2-4 8-4 10 0" stroke="#fff8dc" stroke-width="3" fill="none" /></g>
+        </svg>
+        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div class="relative z-10 hero-text text-white max-w-xl">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg select-none">Techkkim</h1>
+            <p class="text-xl md:text-2xl mb-4 font-light">Enhanced Digital Heritage Platform</p>
+            <p class="text-lg mb-8 opacity-90">Experience Sikkim's monasteries with AI, AR & Live streaming</p>
+            <div class="flex justify-center gap-6 flex-wrap">
+                <a href="#tours" class="btn-gradient" role="button" tabindex="0">🎥 Start Virtual Tour</a>
+                <a href="#live-hub" class="btn-gradient" role="button" tabindex="0">📺 Live Experiences</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-4 bg-gradient-to-r from-[#fff8e1] to-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-10 text-[#800000] select-none">About Enhanced Techkkim</h2>
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4">Next-Generation Heritage Platform</h3>
+                    <p class="mb-4">Sikkim is home to over 200 monasteries, many dating back to the 17th and 18th centuries. Our enhanced platform now combines traditional virtual tours with cutting-edge AI, Augmented Reality, and live streaming technology.</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li>AI-powered monastery guide and chatbot</li>
+                        <li>Augmented Reality monastery identification</li>
+                        <li>Live streaming of prayer ceremonies</li>
+                        <li>Voice search in multiple languages</li>
+                        <li>Virtual meditation sessions with monks</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4">Our Enhanced Mission</h3>
+                    <p class="mb-4">To create the world's most advanced digital heritage preservation platform, making Sikkim's monasteries accessible globally through immersive technology while supporting local communities.</p>
+                    <div class="bg-white p-4 rounded-lg shadow-lg">
+                        <h4 class="font-bold text-[#800000] mb-2">🎯 SIH Innovation Goals:</h4>
+                        <p class="text-sm">Combining cultural preservation with modern technology to create sustainable tourism and educational opportunities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section id="features" class="py-16 px-4 section-bg">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-10 text-[#800000] select-none">Enhanced Key Features</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Virtual Tours -->
+                <div class="feature-box bg-gradient-to-br from-purple-100 to-indigo-100">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3eb146d2-9782-4e05-91aa-79f4f2370c19.png" alt="Serene view of a Tibetan-style monastery with monks in orange robes amidst green hills and golden prayer flags, capturing the essence of spiritual exploration" loading="lazy" class="rounded-lg mb-4 w-full" />
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">🎥 AI-Enhanced Virtual Tours</h3>
+                    <p class="text-gray-700 mb-2">360° panoramic views with AI-powered narration, voice control, and personalized recommendations based on your interests.</p>
+                    <button class="btn-gradient" type="button" onclick="startVirtualTour()">Explore Tours</button>
+                </div>
+                <!-- AR Integration -->
+                <div class="feature-box bg-gradient-to-br from-green-100 to-teal-100">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/13a22ef9-e9d3-4399-b008-405cacdb8ac7.png" alt="Modern smartphone displaying an interactive audio guide interface with holographic monastery map and audio waves emanating from the device" loading="lazy" class="rounded-lg mb-4 w-full" />
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">📱 Augmented Reality Mode</h3>
+                    <p class="text-gray-700 mb-2">Point your camera at monastery images for instant information, 3D models, and interactive overlays with historical details.</p>
+                    <button class="btn-gradient" type="button" onclick="activateAR()">Try AR Mode</button>
+                </div>
+                <!-- Interactive Map -->
+                <div class="feature-box bg-gradient-to-br from-yellow-100 to-orange-100">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/95f6e6d0-426a-4d52-8213-ab0a6ba2def0.png" alt="Detailed digital map of Sikkim highlighting monastery locations with colorful pins, mountains in the background, and integrated travel routes for tourists" loading="lazy" class="rounded-lg mb-4 w-full" />
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">🗺️ Smart Interactive Map</h3>
+                    <p class="text-gray-700 mb-2">AI-powered route planning with weather integration, real-time monastery status, and voice-guided navigation.</p>
+                    <button class="btn-gradient" type="button">View Smart Map</button>
+                </div>
+                <!-- Digital Archives -->
+                <div class="feature-box bg-gradient-to-br from-pink-100 to-rose-100">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0300a514-6c23-471e-b3b0-58218d3f7379.png" alt="Close-up of ancient Tibetan manuscripts and vibrant Buddhist murals with intricate gold details and historical significance" loading="lazy" class="rounded-lg mb-4 w-full" />
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">📚 AI-Powered Archives</h3>
+                    <p class="text-gray-700 mb-2">Advanced OCR text recognition, multi-language translation, and machine learning categorization of historical documents.</p>
+                    <button class="btn-gradient" type="button">Browse Archives</button>
+                </div>
+                <!-- Live Streaming -->
+                <div class="feature-box bg-gradient-to-br from-red-100 to-pink-100">
+                    <div class="bg-gradient-to-r from-red-400 to-pink-400 rounded-lg p-8 mb-4 text-white text-center">
+                        <h4 class="text-2xl font-bold">🔴 LIVE</h4>
+                        <p>Morning Prayer Ceremony</p>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">📺 Live Monastery Streaming</h3>
+                    <p class="text-gray-700 mb-2">Join live prayer ceremonies, meditation sessions, and cultural events directly from monasteries in real-time.</p>
+                    <button class="btn-gradient" type="button" onclick="joinLiveStream()">Watch Live</button>
+                </div>
+                <!-- AI Chatbot -->
+                <div class="feature-box bg-gradient-to-br from-blue-100 to-indigo-100">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-8 mb-4 text-white text-center">
+                        <h4 class="text-3xl">🤖</h4>
+                        <p>AI Monastery Guide</p>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#800000] mb-2">🧠 Intelligent AI Assistant</h3>
+                    <p class="text-gray-700 mb-2">24/7 AI guide answering questions about monasteries, festivals, Buddhist practices, and travel planning.</p>
+                    <button class="btn-gradient" type="button" onclick="openChatbot()">Ask AI Guide</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Experience Hub Section -->
+    <section id="live-hub" class="py-16 px-4 bg-gradient-to-r from-orange-100 to-red-100">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-10 text-[#800000] select-none">🌟 Live Monastery Experiences</h2>
+            <p class="text-center text-lg mb-12 text-gray-700">Join live ceremonies, meditation sessions, and cultural events from Sikkim's monasteries in real-time</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="live-stream-card live">
+                    <span class="live-indicator">🔴 LIVE</span>
+                    <h3 class="text-xl font-semibold mb-3">Morning Prayer - Rumtek</h3>
+                    <p class="text-gray-600 mb-4">Join the 6 AM prayer ceremony with 127 viewers currently watching</p>
+                    <div class="bg-black rounded-lg h-32 mb-4 flex items-center justify-center text-white">
+                        🎥 Live Stream Preview
+                    </div>
+                    <button class="btn-gradient w-full" onclick="joinLiveStream('rumtek')">🔴 Watch Live</button>
+                </div>
+                <div class="live-stream-card">
+                    <h3 class="text-xl font-semibold mb-3">Virtual Meditation</h3>
+                    <p class="text-gray-600 mb-4">Guided 20-minute breathing meditation session with resident monk</p>
+                    <div class="bg-gradient-to-br from-green-200 to-blue-200 rounded-lg h-32 mb-4 flex items-center justify-center">
+                        🧘‍♀️ Next session: 3:00 PM
+                    </div>
+                    <button class="btn-gradient w-full" onclick="startMeditation()">🧘‍♀️ Start Session</button>
+                </div>
+                <div class="live-stream-card">
+                    <h3 class="text-xl font-semibold mb-3">Elder Stories</h3>
+                    <p class="text-gray-600 mb-4">Listen to monastery legends and oral histories from elder monks</p>
+                    <div class="bg-gradient-to-br from-yellow-200 to-orange-200 rounded-lg h-32 mb-4 flex items-center justify-center">
+                        🎭 5 stories available
+                    </div>
+                    <button class="btn-gradient w-full" onclick="playStory()">🎧 Listen Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Virtual Tours Section -->
+    <section id="tours" class="py-16 px-4 section-bg">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-10 text-[#800000] select-none">Enhanced Virtual Tours</h2>
+            <p class="mb-8 text-lg">Immersive 360° experiences with AI narration, voice commands, and personalized recommendations.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-105">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e49905f6-8eae-4aec-8220-14e78f27c7c4.png" alt="Interior 360 view of Rumtek Monastery showcasing intricate murals and golden statues" loading="lazy" class="rounded-md" />
+                    <h3 class="text-xl font-semibold mt-4">🏛️ Rumtek Monastery</h3>
+                    <p class="mb-2">AI-narrated tours in English, Nepali, Bhutia, and Lepcha with voice interaction.</p>
+                    <div class="text-sm text-gray-600 mb-4">
+                        ⭐ 4.9/5 | 👥 2,847 visitors | 🎥 4K Quality
+                    </div>
+                    <button class="btn-gradient" type="button">🎥 Start AI Tour</button>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-105">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5b357f18-02df-4336-8cf3-25c15daea2c4.png" alt="Panoramic exterior of Pemayangtse Monastery with traditional Tibetan architecture" loading="lazy" class="rounded-md" />
+                    <h3 class="text-xl font-semibold mt-4">⛩️ Pemayangtse Monastery</h3>
+                    <p class="mb-2">Explore 300+ years of history with interactive hotspots and AR overlays.</p>
+                    <div class="text-sm text-gray-600 mb-4">
+                        ⭐ 4.8/5 | 👥 1,956 visitors | 📱 AR Ready
+                    </div>
+                    <button class="btn-gradient" type="button">🎥 Start AR Tour</button>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-105">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5d82f8bf-13d8-4b81-bbe3-d9aa1ff0b012.png" alt="Detailed 360° view of Enchey Monastery gardens and prayer halls" loading="lazy" class="rounded-md" />
+                    <h3 class="text-xl font-semibold mt-4">🌸 Enchey Monastery</h3>
+                    <p class="mb-2">Voice-guided meditation walks through sacred gardens and prayer halls.</p>
+                    <div class="text-sm text-gray-600 mb-4">
+                        ⭐ 4.7/5 | 👥 1,234 visitors | 🎧 Audio Guide
+                    </div>
+                    <button class="btn-gradient" type="button">🎥 Start Voice Tour</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="map" class="py-16 px-4 bg-sky-100">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-10 text-[#800000] select-none">AI-Powered Interactive Map</h2>
+            <p class="mb-8 text-lg">Smart route planning with weather integration, real-time monastery status, and voice navigation.</p>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ea1a9616-ee8b-4755-ac60-b0a5dc65f096.png" alt="Interactive map of Sikkim showing monastery locations with geo-tags, travel routes, and nearby attractions like hiking trails and hotels" loading="lazy" />
+                <div class="grid md:grid-cols-3 gap-6 mt-6">
+                    <div class="text-center">
+                        <h4 class="font-bold text-[#800000]">🗣️ Voice Navigation</h4>
+                        <p class="text-sm">Ask "Guide me to Rumtek" for spoken directions</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="font-bold text-[#800000]">🌤️ Weather Integration</h4>
+                        <p class="text-sm">Real-time weather and best visit times</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="font-bold text-[#800000]">🚌 Smart Transport</h4>
+                        <p class="text-sm">Book local transport and guided tours</p>
+                    </div>
+                </div>
+                <button class="btn-gradient mt-6" type="button">🗺️ Open Smart Map</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Digital Archives Section -->
+    <section id="archives" class="py-16 px-4 bg-gray-50">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-10 text-[#800000] select-none">AI-Enhanced Digital Archives</h2>
+            <p class="mb-8 text-lg">Advanced OCR, multi-language translation, and machine learning categorization of historical documents.</p>
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e221119a-7072-421a-87d7-334ef3bb31cd.png" alt="Scanned manuscript page from ancient Sikkim monastery with Tibetan script" loading="lazy" class="rounded-md" />
+                    <p class="mt-2 text-sm font-semibold">📜 Ancient Manuscripts</p>
+                    <p class="text-xs text-gray-600">AI-translated to 12 languages</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/46960e6b-5083-4c00-ab8f-f062a6571731.png" alt="High-resolution scan of colorful monastery mural depicting Buddhist deities" loading="lazy" class="rounded-md" />
+                    <p class="mt-2 text-sm font-semibold">🎨 Artistic Murals</p>
+                    <p class="text-xs text-gray-600">HD scans with zoom details</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7ac2d195-c85b-4b5f-b0f8-dba1f52d7395.png" alt="Digitized historical document with seals and illustrations" loading="lazy" class="rounded-md" />
+                    <p class="mt-2 text-sm font-semibold">📋 Historical Documents</p>
+                    <p class="text-xs text-gray-600">Timeline-organized</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/16825364-5037-4f37-9893-bd14d96bfd96.png" alt="Interactive digital catalog for searching archival content" loading="lazy" class="rounded-md" />
+                    <p class="mt-2 text-sm font-semibold">🔍 AI Search Engine</p>
+                    <p class="text-xs text-gray-600">Visual & text recognition</p>
+                </div>
+            </div>
+            <div class="search-container max-w-lg mx-auto">
+                <input type="text" placeholder="Search archives with voice or text..." class="search-input" id="archive-search" />
+                <button class="voice-button" id="voice-archive-search" title="Voice Search">🎤</button>
+                <button class="search-button" onclick="searchArchives()">🔍 Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community & Learning Platform -->
+    <section id="community" class="py-16 px-4 section-bg">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-10 text-[#800000] select-none">Community & Learning Hub</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#800000]">🗨️ Visitor Forum</h3>
+                    <p class="mb-4">Connect with fellow travelers, researchers, and monastery enthusiasts from around the world.</p>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-[#FFC107]">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-[#800000] rounded-full flex items-center justify-center text-white text-xs font-bold">JD</div>
+                                <span class="ml-2 font-semibold text-sm">John Doe</span>
+                                <span class="ml-auto text-xs text-gray-500">2 hours ago</span>
+                            </div>
+                            <p class="text-sm">"The virtual meditation session was incredibly peaceful. Highly recommend!"</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-[#FFC107]">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-[#800000] rounded-full flex items-center justify-center text-white text-xs font-bold">MP</div>
+                                <span class="ml-2 font-semibold text-sm">Maya Patel</span>
+                                <span class="ml-auto text-xs text-gray-500">1 day ago</span>
+                            </div>
+                            <p class="text-sm">"Can anyone share the best route to reach Pemayangtse during monsoon?"</p>
+                        </div>
+                    </div>
+                    <button class="btn-gradient mt-4 w-full">Join Community Discussion</button>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#800000]">🎓 Virtual Buddhist Studies</h3>
+                    <p class="mb-4">Learn from resident monks and Buddhist scholars through interactive courses.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg text-center">
+                            <h4 class="font-bold text-sm">Introduction to Buddhism</h4>
+                            <p class="text-xs text-gray-600">45 min course</p>
+                            <p class="text-xs text-green-600">✓ 234 completed</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg text-center">
+                            <h4 class="font-bold text-sm">Monastery Architecture</h4>
+                            <p class="text-xs text-gray-600">30 min course</p>
+                            <p class="text-xs text-blue-600">🔴 Live now</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                            <h4 class="font-bold text-sm">Tibetan Art History</h4>
+                            <p class="text-xs text-gray-600">60 min course</p>
+                            <p class="text-xs text-gray-600">Starting soon</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg text-center">
+                            <h4 class="font-bold text-sm">Meditation Practices</h4>
+                            <p class="text-xs text-gray-600">20 min daily</p>
+                            <p class="text-xs text-orange-600">⭐ Most popular</p>
+                        </div>
+                    </div>
+                    <button class="btn-gradient mt-4 w-full">Start Learning Journey</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cultural Calendar Section -->
+    <section id="calendar" class="py-16 px-4 bg-gray-100">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-10 text-[#800000] select-none">Cultural Calendar 2025</h2>
+            <p class="mb-8 text-lg">Events, festivals, and rituals schedule with live streaming and virtual participation options.</p>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/08c0040c-31bd-485d-a52f-f8e22e54c853.png" alt="Beautiful depiction of Tara, the local goddess in Sikkim, adorned with traditional silver jewelry and flowing silk robes, exuding wisdom and tranquility amidst mountain scenery" class="goddess-img" loading="lazy" />
+                    <p class="mt-4 text-center italic">Tara, the benevolent goddess revered in Sikkim for protection and wisdom.</p>
+                </div>
+                <div>
+                    <p class="mb-4 text-lg">🎊 Experience festivals virtually with live streaming, interactive ceremonies, and cultural workshops.</p>
+                    <table>
+                        <thead><tr><th>Event</th><th>Date</th><th>Experience Type</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <tr><td>Losar Festival</td><td>Feb 17-21, 2025</td><td>🔴 Live Stream + 📱 AR</td><td><button class="btn-gradient text-sm px-3 py-1">Join Virtually</button></td></tr>
+                            <tr><td>Saga Dawa</td><td>May 27-30, 2025</td><td>🧘‍♀️ Meditation + 🎓 Learning</td><td><button class="btn-gradient text-sm px-3 py-1">Learn More</button></td></tr>
+                            <tr><td>Pang Lhabsol</td><td>Dec 15-25, 2025</td><td>🎭 Cultural Show + 🤖 AI Guide</td><td><button class="btn-gradient text-sm px-3 py-1">Book Experience</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 360° Panoramic Views Section -->
+    <section id="panoramic" class="py-16 px-4 section-bg">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-10 text-[#800000] select-none">Enhanced 360° Panoramic Views</h2>
+            <p class="mb-8 text-lg text-center">Ultra-high definition panoramic experiences with AI narration and interactive hotspots.</p>
+            <div class="grid md:grid-cols-1 gap-8">
+                <div class="iframe-container">
+                    <iframe src="https://placehold.co/embed/800x450/800000/FFC107?text=360%C2%B0+Rumtek+Monastery+%F0%9F%8F%9B%EF%B8%8F" title="360° panoramic view of Rumtek Monastery with AI narration" allowfullscreen loading="lazy"></iframe>
+                    <div class="flex justify-between items-center mt-4">
+                        <div>
+                            <p class="text-center font-semibold">🏛️ Rumtek Monastery - 1966 AD</p>
+                            <p class="text-sm text-gray-600">🤖 AI Narration | 📱 AR Ready | 🎧 5 Languages</p>
+                        </div>
+                        <button class="btn-gradient">🎥 Start AI Tour</button>
+                    </div>
+                </div>
+                <div class="iframe-container">
+                    <iframe src="https://placehold.co/embed/800x450/4CAF50/FFFFFF?text=360%C2%B0+Pemayangtse+%E2%9B%A9%EF%B8%8F" title="360° panoramic view of Pemayangtse Monastery with interactive hotspots" allowfullscreen loading="lazy"></iframe>
+                    <div class="flex justify-between items-center mt-4">
+                        <div>
+                            <p class="text-center font-semibold">⛩️ Pemayangtse Monastery - 1705 AD</p>
+                            <p class="text-sm text-gray-600">🔍 Interactive Hotspots | 📚 Historical Archive | 🌐 Virtual Reality</p>
+                        </div>
+                        <button class="btn-gradient">🎥 Explore History</button>
+                    </div>
+                </div>
+                <div class="iframe-container">
+                    <iframe src="https://placehold.co/embed/800x450/FF9800/FFFFFF?text=360%C2%B0+Tashiding+%F0%9F%8F%94%EF%B8%8F" title="360° panoramic view of Tashiding Monastery with meditation guide" allowfullscreen loading="lazy"></iframe>
+                    <div class="flex justify-between items-center mt-4">
+                        <div>
+                            <p class="text-center font-semibold">🏔️ Tashiding Monastery - 1642 AD</p>
+                            <p class="text-sm text-gray-600">🧘‍♀️ Guided Meditation | 🔔 Prayer Sounds | 🌸 Sacred Garden</p>
+                        </div>
+                        <button class="btn-gradient">🧘‍♀️ Meditate Here</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-[#800000] text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-xl font-semibold mb-4">📞 Contact Us</h3>
+                <p>Email: info@techkkim.com</p>
+                <p>Phone: +91-123-456-7890</p>
+                <p class="mt-2 text-sm opacity-90">🤖 24/7 AI Support Available</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-4">🔗 Quick Links</h3>
+                <ul class="space-y-1">
+                    <li><a href="#home" class="hover:text-[#FFC107] text-sm">Home</a></li>
+                    <li><a href="#features" class="hover:text-[#FFC107] text-sm">Enhanced Features</a></li>
+                    <li><a href="#live-hub" class="hover:text-[#FFC107] text-sm">Live Experiences</a></li>
+                    <li><a href="#community" class="hover:text-[#FFC107] text-sm">Community</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-4">📱 Download App</h3>
+                <div class="space-y-2">
+                    <button class="bg-black text-white px-4 py-2 rounded-lg text-sm w-full">📱 Install PWA</button>
+                    <button class="bg-[#FFC107] text-[#800000] px-4 py-2 rounded-lg text-sm w-full">🍎 App Store</button>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm w-full">🤖 Play Store</button>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-4">🌐 Follow Us</h3>
+                <div class="flex space-x-3 mb-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8d183e59-b697-47a6-a53e-6fe14a97659e.png" alt="Facebook" class="w-8 h-8 hover:scale-110 transition-transform cursor-pointer" />
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8a48c922-4c42-4afb-abc4-8ec537c9553f.png" alt="Instagram" class="w-8 h-8 hover:scale-110 transition-transform cursor-pointer" />
+                    <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform">TW</div>
+                    <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-xs font-bold cursor-pointer hover:scale-110 transition-transform">YT</div>
+                </div>
+                <p class="text-xs opacity-75">🏆 SIH 2025 Innovation Project</p>
+            </div>
+        </div>
+        <p class="text-center mt-8 text-sm opacity-90">© 2025 Enhanced Techkkim. Preserving Heritage with AI & AR Technology. 🇮🇳</p>
+    </footer>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        class TechkkimEnhanced {
+            constructor() {
+                this.initializeChatbot();
+                this.initializeVoiceSearch();
+                this.initializeARMode();
+                this.initializeLiveFeatures();
+                this.initializeAccessibility();
+                this.initializePWA();
+                this.initializeNotifications();
+            }
+
+            // AI Chatbot Implementation
+            initializeChatbot() {
+                // Create chatbot widget
+                const chatWidget = document.createElement('div');
+                chatWidget.className = 'chatbot-widget';
+                chatWidget.innerHTML = '🤖';
+                chatWidget.setAttribute('aria-label', 'Open AI Assistant');
+                chatWidget.title = 'Chat with AI Monastery Guide';
+                document.body.appendChild(chatWidget);
+
+                // Create chat interface
+                const chatInterface = document.createElement('div');
+                chatInterface.className = 'chat-interface';
+                chatInterface.innerHTML = `
+                    <div class="chat-header">
+                        <span>🤖 Techkkim AI Guide</span>
+                        <button class="chat-close" style="float: right; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">×</button>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="bot-message" style="background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 10px;">
+                            🙏 Namaste! I'm your AI monastery guide. Ask me about any monastery, festival, or Buddhist practices in Sikkim! I can help with:<br>
+                            • Monastery information & history<br>
+                            • Virtual tour recommendations<br>
+                            • Festival dates & ceremonies<br>
+                            • Travel planning & routes<br>
+                            • Buddhist practices & meditation 🏔️
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" placeholder="Ask about monasteries..." id="chat-input">
+                        <button class="chat-send" id="chat-send">➤</button>
+                    </div>
+                `;
+                document.body.appendChild(chatInterface);
+
+                // Event listeners
+                chatWidget.addEventListener('click', () => {
+                    chatInterface.style.display = chatInterface.style.display === 'flex' ? 'none' : 'flex';
+                });
+
+                document.querySelector('.chat-close').addEventListener('click', () => {
+                    chatInterface.style.display = 'none';
+                });
+
+                document.getElementById('chat-send').addEventListener('click', () => {
+                    this.sendChatMessage();
+                });
+
+                document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendChatMessage();
+                });
+            }
+
+            sendChatMessage() {
+                const input = document.getElementById('chat-input');
+                const messages = document.getElementById('chat-messages');
+                const message = input.value.trim();
+                
+                if (!message) return;
+
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.style.cssText = 'background: #800000; color: white; padding: 10px; margin: 5px 0; border-radius: 10px; text-align: right;';
+                userMsg.textContent = message;
+                messages.appendChild(userMsg);
+
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 10px; font-style: italic; color: #666;';
+                typingIndicator.textContent = '🤖 AI Guide is typing...';
+                messages.appendChild(typingIndicator);
+
+                // Simulate AI response
+                setTimeout(() => {
+                    messages.removeChild(typingIndicator);
+                    const botResponse = this.generateChatResponse(message);
+                    const botMsg = document.createElement('div');
+                    botMsg.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 10px;';
+                    botMsg.innerHTML = botResponse;
+                    messages.appendChild(botMsg);
+                    messages.scrollTop = messages.scrollHeight;
+                }, 1200);
+
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            generateChatResponse(message) {
+                const responses = {
+                    'rumtek': '🏛️ <strong>Rumtek Monastery</strong> is the seat of the Karmapa and was built in 1966. It houses precious relics and is known for its beautiful architecture. <br><br>🎥 <em>Available experiences:</em><br>• Virtual 360° tour with AI narration<br>• Live morning prayer streams<br>• AR monastery exploration<br><br>Would you like to start a virtual tour?',
+                    'pemayangtse': '⛩️ <strong>Pemayangtse Monastery</strong>, built in 1705, is one of the oldest monasteries in Sikkim. It belongs to the Nyingma school and offers stunning views of Kanchenjunga.<br><br>🌟 <em>Special features:</em><br>• 300+ years of preserved history<br>• Interactive historical timeline<br>• Virtual meditation garden<br><br>Perfect for history enthusiasts!',
+                    'festival': '🎊 <strong>Major Festivals in Sikkim:</strong><br>• <strong>Losar</strong> (Feb 17-21, 2025) - Tibetan New Year with live streaming<br>• <strong>Saga Dawa</strong> (May 27-30, 2025) - Buddha\'s sacred month<br>• <strong>Pang Lhabsol</strong> (Dec 15-25, 2025) - Thanksgiving celebrations<br><br>🔴 All festivals feature live streaming and virtual participation options!',
+                    'meditation': '🧘‍♀️ <strong>Virtual Meditation Sessions:</strong><br>We offer guided meditation with resident monks:<br>• Live 20-minute breathing sessions<br>• Recorded practices (5-60 minutes)<br>• Virtual monastery meditation walks<br>• Interactive breathing exercises<br><br>Next live session starts in 30 minutes. Shall I reserve your spot?',
+                    'ar': '📱 <strong>AR (Augmented Reality) Features:</strong><br>• Point camera at monastery images for instant info<br>• 3D monastery models in your space<br>• Interactive historical overlays<br>• Virtual prayer wheel simulation<br><br>🚀 <em>Try saying "Activate AR mode" or click the AR button!</em>',
+                    'live': '🔴 <strong>Live Streaming Now:</strong><br>• Morning Prayer at Rumtek (127 viewers)<br>• Virtual meditation session starting soon<br>• Cultural storytelling with elder monks<br><br>Click "Watch Live" buttons to join!',
+                    'visit': '🗺️ <strong>Plan Your Visit:</strong><br>Our AI-powered map provides:<br>• Voice-guided navigation<br>• Weather integration<br>• Real-time monastery status<br>• Transport booking assistance<br>• Best photography spots<br><br>🎯 <em>Pro tip:</em> Use voice commands like "Guide me to Rumtek"!',
+                    'history': '📚 <strong>Sikkim Monastery History:</strong><br>Sikkim has 200+ monasteries dating back to the 17th century:<br>• <strong>Tashiding</strong> (1642) - Oldest active monastery<br>• <strong>Pemayangtse</strong> (1705) - Royal monastery<br>• <strong>Rumtek</strong> (1966) - Modern spiritual center<br><br>Each belongs to different Buddhist schools: Nyingma, Kagyu, and Gelug.',
+                    'prayer': '🔔 <strong>Prayer Wheels & Practices:</strong><br>Prayer wheels contain sacred mantras. Spinning them spreads blessings and positive energy.<br><br>🎮 <em>Interactive features:</em><br>• Virtual prayer wheel simulation<br>• Learn proper spinning techniques<br>• Understand mantra meanings<br>• Join virtual prayer ceremonies<br><br>Try our interactive prayer wheel in the features section!'
+                };
+
+                const lowerMessage = message.toLowerCase();
+                for (const [key, response] of Object.entries(responses)) {
+                    if (lowerMessage.includes(key)) {
+                        return response;
+                    }
+                }
+
+                // Enhanced default response
+                const keywords = message.toLowerCase().split(' ');
+                const monasteryKeywords = ['monastery', 'temple', 'gompa', 'dzong'];
+                const techKeywords = ['ai', 'ar', 'virtual', 'technology', '360'];
+                const travelKeywords = ['visit', 'trip', 'travel', 'route', 'transport'];
+
+                if (keywords.some(word => monasteryKeywords.includes(word))) {
+                    return `🏔️ Great question about <strong>${message}</strong>! While I'm still learning about all monastery details, I can help you:<br>• Explore our virtual tours<br>• Find in digital archives<br>• Connect with our community forum<br>• Plan your visit with our smart map<br><br>What specific aspect interests you most? 🤖`;
+                } else if (keywords.some(word => techKeywords.includes(word))) {
+                    return `🚀 Exciting! You're interested in our <strong>tech features</strong>! Techkkim offers:<br>• 🤖 AI-powered guides & chatbot<br>• 📱 Augmented Reality monastery identification<br>• 🎥 360° virtual tours with voice control<br>• 🔴 Live streaming of ceremonies<br>• 🧘‍♀️ Virtual meditation experiences<br><br>Which technology feature would you like to try first?`;
+                } else if (keywords.some(word => travelKeywords.includes(word))) {
+                    return `🗺️ Planning a trip to Sikkim? Perfect! I can help with:<br>• Smart route planning with weather data<br>• Transport booking assistance<br>• Best photography locations<br>• Monastery visiting schedules<br>• Local guide recommendations<br><br>Where would you like to start your monastery journey? 🏔️`;
+                }
+
+                return `🙏 That's an insightful question about <strong>"${message}"</strong>! While I'm continuously learning about Sikkim's rich monastery heritage, I can guide you to:<br><br>🔍 <strong>Instant Help:</strong><br>• Search our AI-powered archives<br>• Join community discussions<br>• Try voice search for better results<br>• Contact local monastery guides<br><br>🎯 <strong>Quick tip:</strong> Try asking about specific monasteries like "Rumtek", "Pemayangtse", or topics like "festivals", "meditation", or "AR features"! 🤖🏔️`;
+            }
+
+            // Voice Search Implementation
+            initializeVoiceSearch() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    console.log('Speech recognition not supported');
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                // Add voice buttons to search containers
+                const searchContainers = document.querySelectorAll('.search-container');
+                searchContainers.forEach(container => {
+                    const voiceButton = container.querySelector('.voice-button') || document.createElement('button');
+                    if (!container.querySelector('.voice-button')) {
+                        voiceButton.className = 'voice-button';
+                        voiceButton.innerHTML = '🎤';
+                        voiceButton.setAttribute('aria-label', 'Voice Search');
+                        voiceButton.title = 'Click to search with voice';
+                        container.insertBefore(voiceButton, container.lastElementChild);
+                    }
+
+                    voiceButton.addEventListener('click', () => {
+                        voiceButton.classList.add('active');
+                        voiceButton.innerHTML = '🎙️';
+                        recognition.start();
+                        this.showNotification('🎤 Listening... Speak your query now!', 'info');
+                    });
+                });
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const searchInput = document.querySelector('.search-input');
+                    if (searchInput) {
+                        searchInput.value = transcript;
+                        this.performSearch(transcript);
+                    }
+                    
+                    // Reset voice button
+                    document.querySelectorAll('.voice-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.innerHTML = '🎤';
+                    });
+                };
+
+                recognition.onerror = (event) => {
+                    this.showNotification(`Voice search error: ${event.error}. Please try again.`, 'error');
+                    document.querySelectorAll('.voice-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.innerHTML = '🎤';
+                    });
+                };
+            }
+
+            performSearch(query) {
+                const searchResults = {
+                    'rumtek monastery': '🎯 Found: Rumtek Monastery - Virtual tour, live ceremonies, and AI-guided exploration available',
+                    'meditation': '🎯 Found: Virtual meditation sessions, breathing exercises, and guided practices with monks',
+                    'festival': '🎯 Found: Cultural calendar with Losar, Saga Dawa, and Pang Lhabsol - live streaming available',
+                    'prayer wheel': '🎯 Found: Interactive prayer wheel simulation, traditional practices, and spiritual significance',
+                    'history': '🎯 Found: Digital archives with manuscripts, murals, and 300+ years of monastery documentation',
+                    'ar mode': '🎯 Found: Augmented Reality features - camera identification, 3D models, and interactive overlays',
+                    'live stream': '🎯 Found: Live monastery ceremonies, morning prayers, and real-time cultural events'
+                };
+
+                const lowerQuery = query.toLowerCase();
+                let result = null;
+                
+                for (const [key, response] of Object.entries(searchResults)) {
+                    if (lowerQuery.includes(key) || key.includes(lowerQuery)) {
+                        result = response;
+                        break;
+                    }
+                }
+                
+                if (!result) {
+                    result = `🔍 Searching for "${query}" across monasteries, archives, live streams, and cultural content... Found 12 related results!`;
+                }
+                
+                this.showNotification(result, 'search');
+                
+                // Simulate search results display
+                setTimeout(() => {
+                    this.showNotification('💡 Try asking our AI chatbot for more detailed information!', 'info');
+                }, 3000);
+            }
+
+            // AR Mode Implementation
+            initializeARMode() {
+                const arButton = document.createElement('button');
+                arButton.className = 'ar-mode-btn';
+                arButton.innerHTML = '📱 AR Mode';
+                arButton.setAttribute('aria-label', 'Activate Augmented Reality Mode');
+                arButton.title = 'Experience monasteries in Augmented Reality';
+                document.body.appendChild(arButton);
+
+                arButton.addEventListener('click', () => {
+                    this.activateARMode();
+                });
+            }
+
+            activateARMode() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    this.showNotification('🚫 AR mode requires camera access. Please use a compatible device.', 'error');
+                    return;
+                }
+
+                // Create AR interface
+                const arInterface = document.createElement('div');
+                arInterface.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: rgba(0,0,0,0.95);
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                `;
+                arInterface.innerHTML = `
+                    <h2 style="color: #FFC107; margin-bottom: 1rem; text-align: center;">📱 AR Monastery Explorer</h2>
+                    <p style="text-align: center; margin-bottom: 2rem; max-width: 400px;">Point your camera at monastery images or QR codes for enhanced 3D information, historical details, and interactive overlays</p>
+                    <video id="ar-camera" autoplay playsinline style="width: 80%; max-width: 400px; border-radius: 10px; border: 2px solid #FFC107;"></video>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button id="ar-close" style="background: #800000; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer;">❌ Close AR</button>
+                        <button id="ar-capture" style="background: #FFC107; color: #800000; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer;">🔍 Identify Monastery</button>
+                        <button id="ar-3d" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer;">🏛️ View 3D Model</button>
+                    </div>
+                    <div style="margin-top: 10px; text-align: center; font-size: 0.8rem; opacity: 0.8;">
+                        💡 Tip: Hold steady for 2 seconds to auto-identify monasteries
+                    </div>
+                `;
+                document.body.appendChild(arInterface);
+
+                // Start camera
+                navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                })
+                .then(stream => {
+                    document.getElementById('ar-camera').srcObject = stream;
+                    this.showNotification('📹 AR Camera activated! Point at monastery images to identify them.', 'success');
+                })
+                .catch(err => {
+                    this.showNotification('❌ Could not access camera. Please check permissions and try again.', 'error');
+                    document.body.removeChild(arInterface);
+                });
+
+                // AR interface event listeners
+                document.getElementById('ar-close').addEventListener('click', () => {
+                    const video = document.getElementById('ar-camera');
+                    if (video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                    }
+                    document.body.removeChild(arInterface);
+                });
+
+                document.getElementById('ar-capture').addEventListener('click', () => {
+                    this.identifyMonastery();
+                });
+
+                document.getElementById('ar-3d').addEventListener('click', () => {
+                    this.show3DModel();
+                });
+            }
+
+            identifyMonastery() {
+                // Show analyzing animation
+                this.showNotification('🔄 AI analyzing monastery in camera view...', 'info');
+                
+                setTimeout(() => {
+                    const monasteries = [
+                        {
+                            name: 'Rumtek Monastery',
+                            details: 'The Dharma Chakra Centre - Built in 1966, seat of the Karmapa',
+                            features: '🏛️ Traditional architecture | 🎨 Golden statues | 📿 Sacred relics'
+                        },
+                        {
+                            name: 'Pemayangtse Monastery', 
+                            details: 'Perfect Sublime Lotus - Founded in 1705, Nyingma school',
+                            features: '⛩️ Ancient murals | 🏔️ Kanchenjunga views | 📚 Rare manuscripts'
+                        },
+                        {
+                            name: 'Tashiding Monastery',
+                            details: 'The Devoted Central Glory - Established in 1642',
+                            features: '🌸 Sacred gardens | 🔔 Prayer wheels | ⛰️ Hilltop location'
+                        },
+                        {
+                            name: 'Enchey Monastery',
+                            details: 'The Solitary Temple - Built in 1909',
+                            features: '🌳 Peaceful gardens | 🎭 Cham dances | 🏛️ Modern architecture'
+                        }
+                    ];
+                    
+                    const identified = monasteries[Math.floor(Math.random() * monasteries.length)];
+                    
+                    const resultHtml = `
+                        <strong>✅ ${identified.name} Identified!</strong><br>
+                        ${identified.details}<br><br>
+                        <em>Key Features:</em><br>
+                        ${identified.features}<br><br>
+                        🎥 Tap chatbot for virtual tour | 📚 View in archives
+                    `;
+                    
+                    this.showNotification(resultHtml, 'success', 8000);
+                }, 2000);
+            }
+
+            show3DModel() {
+                this.showNotification('🏛️ Loading 3D monastery model... This feature showcases holographic monastery architecture in your space!', 'info');
+                
+                setTimeout(() => {
+                    this.showNotification('✨ 3D Model ready! In full version: Rotate, zoom, and walk around virtual monasteries in your real environment.', 'success');
+                }, 3000);
+            }
+
+            // Live Features Implementation
+            initializeLiveFeatures() {
+                // The live section is already in the HTML
+                // Add dynamic live status updates
+                this.updateLiveStatus();
+                setInterval(() => this.updateLiveStatus(), 30000); // Update every 30 seconds
+            }
+
+            updateLiveStatus() {
+                const liveCards = document.querySelectorAll('.live-stream-card');
+                const currentHour = new Date().getHours();
+                
+                // Simulate different live content based on time
+                liveCards.forEach((card, index) => {
+                    const isLive = (currentHour >= 6 && currentHour <= 8) && index === 0; // Morning prayers
+                    const liveIndicator = card.querySelector('.live-indicator');
+                    
+                    if (isLive && !liveIndicator) {
+                        const indicator = document.createElement('span');
+                        indicator.className = 'live-indicator';
+                        indicator.innerHTML = '🔴 LIVE';
+                        card.insertBefore(indicator, card.firstChild);
+                        card.classList.add('live');
+                    }
+                });
+            }
+
+            // Accessibility Features
+            initializeAccessibility() {
+                const accessibilityControls = document.createElement('div');
+                accessibilityControls.className = 'accessibility-controls';
+                accessibilityControls.innerHTML = `
+                    <button class="accessibility-btn text-size-up" onclick="window.techkkim.adjustTextSize(1.2)" title="Increase text size">A+</button>
+                    <button class="accessibility-btn text-size-down" onclick="window.techkkim.adjustTextSize(0.8)" title="Decrease text size">A-</button>
+                    <button class="accessibility-btn high-contrast" onclick="window.techkkim.toggleHighContrast()" title="Toggle high contrast">◐</button>
+                `;
+                document.body.appendChild(accessibilityControls);
+            }
+
+            adjustTextSize(factor) {
+                const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+                const newSize = currentSize * factor;
+                document.body.style.fontSize = Math.min(Math.max(newSize, 12), 24) + 'px';
+                this.showNotification(`📝 Text size ${factor > 1 ? 'increased' : 'decreased'}`, 'info');
+            }
+
+            toggleHighContrast() {
+                document.body.classList.toggle('high-contrast-mode');
+                
+                if (!document.getElementById('high-contrast-css')) {
+                    const style = document.createElement('style');
+                    style.id = 'high-contrast-css';
+                    style.textContent = `
+                        .high-contrast-mode {
+                            filter: contrast(150%) brightness(150%);
+                        }
+                        .high-contrast-mode .btn-gradient {
+                            background: #000 !important;
+                            color: #fff !important;
+                            border: 2px solid #fff !important;
+                        }
+                        .high-contrast-mode .feature-box {
+                            border: 2px solid #000 !important;
+                            background: #fff !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                this.showNotification('🎨 High contrast mode toggled', 'info');
+            }
+
+            // PWA Implementation
+            initializePWA() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('SW registered: ', registration);
+                            this.showNotification('📱 App ready for offline use!', 'success');
+                        })
+                        .catch(registrationError => {
+                            console.log('SW registration failed: ', registrationError);
+                        });
+                }
+
+                // Add install prompt
+                let deferredPrompt;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    
+                    const installButton = document.createElement('button');
+                    installButton.textContent = '📱 Install App';
+                    installButton.className = 'install-app-btn';
+                    installButton.title = 'Install Techkkim as an app';
+                    
+                    installButton.addEventListener('click', () => {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                this.showNotification('🎉 Thank you! Techkkim app installed successfully.', 'success');
+                            }
+                            deferredPrompt = null;
+                            document.body.removeChild(installButton);
+                        });
+                    });
+                    
+                    document.body.appendChild(installButton);
+                });
+            }
+
+            // Notification system
+            initializeNotifications() {
+                // Welcome notification
+                setTimeout(() => {
+                    this.showNotification('🙏 Welcome to Enhanced Techkkim! Try our AI chatbot, AR mode, and live monastery experiences!', 'info', 6000);
+                }, 3000);
+            }
+
+            // Enhanced notification system
+            showNotification(message, type = 'info', duration = 4000) {
+                const notification = document.createElement('div');
+                const colors = {
+                    'error': '#ff4444',
+                    'success': '#44ff44', 
+                    'info': '#FFC107',
+                    'search': '#2196F3'
+                };
+                
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${colors[type] || '#FFC107'};
+                    color: ${type === 'success' ? '#000' : '#fff'};
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    z-index: 10001;
+                    max-width: 350px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    font-size: 14px;
+                    line-height: 1.4;
+                    animation: slideIn 0.3s ease-out;
+                `;
+                
+                // Add slide-in animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                notification.innerHTML = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                        setTimeout(() => document.body.removeChild(notification), 300);
+                    }
+                }, duration);
+            }
+
+            // Global utility functions
+            joinLiveStream(monastery) {
+                this.showNotification(`🔴 Connecting to live stream from ${monastery} monastery... 127 viewers watching!`, 'info');
+                setTimeout(() => {
+                    this.showNotification(`✅ Connected! You're now watching live from ${monastery}. Use chat to interact with other viewers.`, 'success');
+                }, 2000);
+            }
+
+            startMeditation() {
+                const meditationInterface = document.createElement('div');
+                meditationInterface.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: linear-gradient(135deg, rgba(128,0,0,0.1), rgba(255,193,7,0.05));
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: #800000;
+                `;
+                
+                let timeLeft = 1200; // 20 minutes
+                meditationInterface.innerHTML = `
+                    <h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center;">🧘‍♀️ Guided Meditation with Monk</h2>
+                    <div style="width: 200px; height: 200px; border: 4px solid #800000; border-radius: 50%; margin: 20px auto; background: radial-gradient(circle, rgba(255,193,7,0.2) 0%, transparent 70%); animation: breathe 4s ease-in-out infinite;"></div>
+                    <div style="font-size: 3rem; font-weight: bold; margin: 2rem; font-family: Georgia, serif;" id="meditation-timer">${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}</div>
+                    <p style="text-align: center; margin: 1rem; color: #666; max-width: 500px; font-size: 1.1rem;">
+                        🌸 Follow the breathing circle and let your mind find peace. Breathe in for 4 counts, hold for 4, breathe out for 4. 
+                        <br><br>🎧 <em>"Focus on your breath, let thoughts pass like clouds in the sky..."</em>
+                    </p>
+                    <div style="margin-top: 2rem;">
+                        <button onclick="this.parentElement.remove()" style="background: #800000; color: white; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; margin: 0 10px;">🚪 End Session</button>
+                        <button onclick="window.techkkim.pauseMeditation(this)" style="background: #FFC107; color: #800000; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; margin: 0 10px;">⏸️ Pause</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(meditationInterface);
+                this.showNotification('🧘‍♀️ Meditation session started. Find a comfortable position and breathe deeply.', 'success');
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    const timerElement = document.getElementById('meditation-timer');
+                    if (timerElement) {
+                        timerElement.textContent = `${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`;
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        this.showNotification('🌟 Meditation session completed! Take a moment to appreciate this peaceful feeling. 🙏', 'success');
+                        if (document.body.contains(meditationInterface)) {
+                            document.body.removeChild(meditationInterface);
+                        }
+                    }
+                }, 1000);
+            }
+
+            playStory() {
+                const stories = [
+                    {
+                        title: "The Golden Stupa of Pemayangtse",
+                        content: "Legend tells of a golden stupa that appeared overnight, blessed by Guru Rinpoche himself..."
+                    },
+                    {
+                        title: "The 16th Karmapa and Rumtek",
+                        content: "When the 16th Karmapa fled Tibet, he chose this sacred ground to rebuild his seat of learning..."
+                    },
+                    {
+                        title: "The Sacred Waters of Tashiding", 
+                        content: "It is said that drinking from the sacred spring during Bumchu festival washes away sins..."
+                    },
+                    {
+                        title: "The Protective Spirits of Enchey",
+                        content: "Elder monks speak of guardian spirits that protect the monastery from natural disasters..."
+                    }
+                ];
+                
+                const randomStory = stories[Math.floor(Math.random() * stories.length)];
+                this.showNotification(`🎭 Now playing: <strong>${randomStory.title}</strong><br><br><em>${randomStory.content}</em><br><br>🎧 Full audio story playing... Listen as elder monks share ancient wisdom.`, 'info', 8000);
+            }
+        }
+
+        // Global functions for buttons
+        function openChatbot() {
+            const chatInterface = document.querySelector('.chat-interface');
+            if (chatInterface) {
+                chatInterface.style.display = 'flex';
+            }
+        }
+
+        function activateAR() {
+            if (window.techkkim) {
+                window.techkkim.activateARMode();
+            }
+        }
+
+        function startVirtualTour() {
+            if (window.techkkim) {
+                window.techkkim.showNotification('🎥 Starting AI-enhanced virtual tour with personalized recommendations and voice control!', 'info');
+                // Scroll to tours section
+                document.getElementById('tours').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function joinLiveStream(monastery = 'Rumtek') {
+            if (window.techkkim) {
+                window.techkkim.joinLiveStream(monastery);
+            }
+        }
+
+        function startMeditation() {
+            if (window.techkkim) {
+                window.techkkim.startMeditation();
+            }
+        }
+
+        function playStory() {
+            if (window.techkkim) {
+                window.techkkim.playStory();
+            }
+        }
+
+        function searchArchives() {
+            const query = document.getElementById('archive-search')?.value || 'monastery archives';
+            if (window.techkkim) {
+                window.techkkim.performSearch(query);
+            }
+        }
+
+        // Initialize enhanced features when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the enhanced Techkkim system
+            window.techkkim = new TechkkimEnhanced();
+            
+            // Original menu toggle functionality
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('show');
+                });
+            }
+
+            // Enhanced hover effects for cards
+            const cards = document.querySelectorAll('.feature-box, .live-stream-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add smooth scrolling for all navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
