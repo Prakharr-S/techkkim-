@@ -7,7 +7,7 @@
     <meta name="description" content="Explore Sikkim's monasteries digitally with virtual tours, AR experiences, live streaming, and AI-powered guides. Preserving cultural heritage with cutting-edge technology.">
     
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#800000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1299,7 +1299,7 @@
             // PWA Implementation
             initializePWA() {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker.register('sw.js')
                         .then(registration => {
                             console.log('SW registered: ', registration);
                             this.showNotification('📱 App ready for offline use!', 'success');
@@ -1563,4 +1563,5 @@
         });
     </script>
 </body>
+
 </html>
